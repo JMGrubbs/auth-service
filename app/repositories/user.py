@@ -1,28 +1,24 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from models.user import User
-from core.security import verify_password
 
-async def get_user_by_id(session: AsyncSession, user_id: int) -> User | None:
-    result = await session.execute(
-        select(User).where(User.id == user_id)
-    )
+from core.security import verify_password
+from models.user import User
+
+
+async def get_user_by_id(session: AsyncSession, user_id: str) -> User | None:
+    result = await session.execute(select(User).where(User.id == user_id))
     return result.scalar_one_or_none()
 
 
 async def get_user_by_email(session: AsyncSession, email: str) -> User | None:
     result = await session.execute(
-        select(User).where(
-            User.email == email
-            and User.is_active == True
-        )
+        select(User).where(User.email == email, User.is_active.is_(True))
     )
     return result.scalar_one_or_none()
 
 
 async def create_user(session: AsyncSession, email: str, hashed_password: str) -> User | bool:
-    user_exists = await check_user_exists(session, email)
-    if user_exists:
+    if await check_user_exists(session, email):
         return False
     new_user = User(email=email, hashed_password=hashed_password)
     session.add(new_user)
@@ -53,23 +49,18 @@ async def deactivate_user(session: AsyncSession, user: User) -> User:
 
 
 async def check_user_exists(session: AsyncSession, email: str) -> bool:
-    result = await session.execute(
-        select(User).where(User.email == email)
-    )
+    result = await session.execute(select(User).where(User.email == email))
     return result.scalar_one_or_none() is not None
 
 
 async def login_user(session: AsyncSession, email: str, password: str) -> User | None:
     user = await get_user_by_email(session, email)
-    if user:
-        verified_pass = verify_password(plain_password=password, hashed_password=user.hashed_password) if user else False
-        if verified_pass:
-            return user
-        return None
+    if user and verify_password(plain_password=password, hashed_password=user.hashed_password):
+        return user
     return None
 
 
-async def is_user_admin(session: AsyncSession, user_id: int) -> bool:
+async def is_user_admin(session: AsyncSession, user_id: str) -> bool:
     user = await get_user_by_id(session, user_id)
     return user.is_admin if user else False
 

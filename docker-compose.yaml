@@ -1,88 +1,97 @@
 networks:
-  db-network:
+  auth-network:
     driver: bridge
 
 services:
   db-cache:
-    image: redis:latest
-    ports:
-      - 6379:6379
+    image: redis:7.4-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
     volumes:
-      - db_redis_cache:/var/lib/redis
-    command: ["redis-server","--save","", "--appendonly","no"]
+      - auth_redis_cache:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    restart: always
-    networks:
-      - db-network
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    networks: [auth-network]
 
   postgres:
-    image: postgres:17
-    ports:
-      - "5432:5432"
+    image: postgres:17-alpine
     environment:
       POSTGRES_USER: ${POSTGRES_MAIN_USER}
       POSTGRES_PASSWORD: ${POSTGRES_MAIN_PASSWORD}
       POSTGRES_DB: ${POSTGRES_MAIN_DB}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_MAIN_USER} -d ${POSTGRES_MAIN_DB}"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
       start_period: 5s
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    env_file:
-      - .env
-    restart: always
-    networks:
-      - db-network
+    restart: unless-stopped
+    networks: [auth-network]
 
   api:
     build:
       context: ./app
       dockerfile: Dockerfile
-    working_dir: /app
-    command: python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    command: ["sh", "-c", "alembic upgrade head && python -m uvicorn main:app --host 0.0.0.0 --port 8000"]
     env_file:
       - ./app/.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_MAIN_USER}:${POSTGRES_MAIN_PASSWORD}@postgres:5432/${POSTGRES_MAIN_DB}
+      REDIS_URL: redis://db-cache:6379/0
+      OAUTH_CLIENTS_JSON: '${OAUTH_CLIENTS_JSON:-[]}'
+      CORS_ORIGINS_JSON: '${CORS_ORIGINS_JSON:-["*"]}'
+      AUTHORIZATION_CODE_EXPIRE_SECONDS: ${AUTHORIZATION_CODE_EXPIRE_SECONDS:-120}
+      OAUTH_LOGIN_RATE_WINDOW_SECONDS: ${OAUTH_LOGIN_RATE_WINDOW_SECONDS:-300}
+      OAUTH_LOGIN_EMAIL_LIMIT: ${OAUTH_LOGIN_EMAIL_LIMIT:-5}
+      OAUTH_LOGIN_IP_LIMIT: ${OAUTH_LOGIN_IP_LIMIT:-300}
     ports:
-      - 8000:8000
+      - "8001:8000"
     depends_on:
       postgres:
         condition: service_healthy
+      db-cache:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      test: ["CMD", "curl", "-fsS", "http://localhost:8001/api/v1/health"]
       interval: 10s
       timeout: 5s
-      retries: 3
-    volumes:
-      - ./app:/app
-    networks:
-      - db-network
-    restart: always
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+    networks: [auth-network]
 
-  # mcp:
-  #   build:
-  #     context: ./mcp
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - 8001:8001
-  #   working_dir: /mcp
-  #   env_file:
-  #     - ./mcp/.env
-  #   volumes:
-  #     - ./mcp:/mcp
-  #   depends_on:
-  #     api:
-  #       condition: service_healthy
-  #   command: python -m uvicorn main:app --host 0.0.0.0 --port 8001 --reload
-  #   networks:
-  #     - db-network
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks: [auth-network]
+
+  frontend-test:
+    image: node:22.17-alpine
+    profiles: ["test"]
+    working_dir: /workspace
+    command: ["sh", "-c", "npm ci && npm test -- --run"]
+    volumes:
+      - ./frontend:/workspace
+      - frontend_node_modules:/workspace/node_modules
 
 volumes:
-  db_redis_cache:
+  auth_redis_cache:
+  frontend_node_modules:
   postgres_data:

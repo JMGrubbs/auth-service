@@ -208,3 +208,8 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Auth Service frontend
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/

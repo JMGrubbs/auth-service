@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 from logging.config import fileConfig
 
-from sqlalchemy import pool
+from sqlalchemy import pool, text
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
@@ -84,6 +84,11 @@ async def run_async_migrations() -> None:
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
+
+    # Alembic stores its own version table in `auth`, so create that schema
+    # in a committed transaction before Alembic initializes the table.
+    async with connectable.begin() as connection:
+        await connection.execute(text("CREATE SCHEMA IF NOT EXISTS auth"))
 
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
