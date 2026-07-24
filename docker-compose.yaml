@@ -18,6 +18,8 @@ services:
 
   postgres:
     image: postgres:17-alpine
+    ports:
+      - "5434:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_MAIN_USER}
       POSTGRES_PASSWORD: ${POSTGRES_MAIN_PASSWORD}
@@ -50,7 +52,7 @@ services:
       OAUTH_LOGIN_EMAIL_LIMIT: ${OAUTH_LOGIN_EMAIL_LIMIT:-5}
       OAUTH_LOGIN_IP_LIMIT: ${OAUTH_LOGIN_IP_LIMIT:-300}
     ports:
-      - "8001:8000"
+      - "8002:8000"
     depends_on:
       postgres:
         condition: service_healthy
