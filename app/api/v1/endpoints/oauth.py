@@ -9,18 +9,21 @@ from core.security import create_access_token
 from db.dependencies import get_session
 from repositories.user import login_user
 from schemas.oauth import (
+    AuthorizationContext,
     AuthorizationRequest,
     AuthorizationResponse,
     ClientResponse,
     TokenRequest,
     TokenResponse,
 )
+from schemas.user import UserCreate
 from services.authorization_codes import (
     AuthorizationCodeError,
     AuthorizationCodeStore,
     AuthorizationGrant,
 )
 from services.login_rate_limit import LoginRateLimitError, LoginRateLimiter
+from services.user_registration import RegistrationConflict, register_user
 
 
 router = APIRouter(tags=["oauth"])
@@ -58,6 +61,40 @@ async def client_details(
     except OAuthRequestError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
     return ClientResponse(client_id=client.client_id, name=client.name)
+
+
+@router.post("/validate", response_model=ClientResponse)
+async def validate_authorization(
+    payload: AuthorizationContext,
+    registry: OAuthClientRegistry = Depends(get_client_registry),
+) -> ClientResponse:
+    """Validate the complete OAuth request before registration has side effects."""
+    try:
+        client = registry.require_redirect_uri(payload.client_id, payload.redirect_uri)
+    except OAuthRequestError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    return ClientResponse(client_id=client.client_id, name=client.name)
+
+
+@router.post("/register")
+async def register_for_authorization(
+    payload: AuthorizationRequest,
+    session: AsyncSession = Depends(get_session),
+    registry: OAuthClientRegistry = Depends(get_client_registry),
+) -> dict:
+    """Register only after the complete OAuth request passes server validation."""
+    try:
+        registry.require_redirect_uri(payload.client_id, payload.redirect_uri)
+    except OAuthRequestError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+    try:
+        return await register_user(
+            session,
+            UserCreate(email=payload.email, password=payload.password),
+        )
+    except RegistrationConflict as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
 
 @router.post("/authorize", response_model=AuthorizationResponse)

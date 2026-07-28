@@ -65,12 +65,20 @@ The frontend serves a small browser helper at `/auth-client.js`. An originating 
 ```js
 import {
   beginLogin,
+  beginRegistration,
   completeLogin,
   getAccessToken,
 } from "https://auth.example.com/auth-client.js";
 
 // Sign-in button
 await beginLogin({
+  authUrl: "https://auth.example.com/",
+  clientId: "scrappy-web",
+  redirectUri: "https://scrappy.example.com/auth/callback",
+});
+
+// Create-account button uses the same registered callback and PKCE flow
+await beginRegistration({
   authUrl: "https://auth.example.com/",
   clientId: "scrappy-web",
   redirectUri: "https://scrappy.example.com/auth/callback",
@@ -87,6 +95,8 @@ const session = await completeLogin({
 console.log(session.expiresIn);
 // The token is now available from getAccessToken() in sessionStorage
 ```
+
+The login page links to `/register` while preserving the signed-in app's client, callback, state, and PKCE challenge. After creating an account, Auth Service immediately issues the same one-time authorization result and returns the browser to that app. Apps can open registration directly with `beginRegistration()`.
 
 The helper:
 

@@ -1,12 +1,15 @@
 from pydantic import BaseModel, EmailStr, Field
 
 
-class AuthorizationRequest(BaseModel):
+class AuthorizationContext(BaseModel):
     client_id: str = Field(min_length=3, max_length=80, pattern=r"^[A-Za-z0-9._-]+$")
     redirect_uri: str = Field(min_length=10, max_length=2048)
     state: str = Field(min_length=8, max_length=512)
     code_challenge: str = Field(min_length=43, max_length=128, pattern=r"^[A-Za-z0-9_-]+$")
     code_challenge_method: str = Field(pattern=r"^S256$")
+
+
+class AuthorizationRequest(AuthorizationContext):
     email: EmailStr
     password: str = Field(min_length=1, max_length=1024)
 

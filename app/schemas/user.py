@@ -10,7 +10,6 @@ class UserCreate(BaseModel):
 
     @field_validator("password", mode="before")
     def validate_password(cls, password: str) -> str:
-        password = password.strip()
         if len(password) < 8:
             raise ValueError("Password must be at least 8 characters long")
         if not any(char.isdigit() for char in password):

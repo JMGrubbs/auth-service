@@ -59,7 +59,7 @@ services:
       db-cache:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:8001/api/v1/health"]
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/api/v1/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -69,29 +69,21 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ./watchtowers-frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:8080"
-    depends_on:
-      api:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-    networks: [auth-network]
-
-  frontend-test:
-    image: node:22.17-alpine
-    profiles: ["test"]
-    working_dir: /workspace
-    command: ["sh", "-c", "npm ci && npm test -- --run"]
+      - "5174:5173"
     volumes:
-      - ./frontend:/workspace
-      - frontend_node_modules:/workspace/node_modules
+      - ./watchtowers-frontend:/app
+      - /app/node_modules
+    env_file:
+      - ./watchtowers-frontend/.env
+    restart: always
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    stdin_open: true
+    tty: true
+
 
 volumes:
   auth_redis_cache:
