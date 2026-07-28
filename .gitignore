@@ -7,7 +7,7 @@ __pycache__/
 *.so
 
 # jsx
-# */node_modules
+*/node_modules
 
 # Distribution / packaging
 .Python
