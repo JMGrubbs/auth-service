@@ -5,6 +5,8 @@ import UserLayout from "./layouts/UserLayout";
 import AuthLayout from "./layouts/AuthLayout";
 import Login from "./pages/Login";
 import About from "./pages/About";
+import Home from "./pages/Home";
+import RegisterUser from "./pages/Register";
 import Unauthorized from "./pages/Unauthorized";
 
 export default function App() {
@@ -32,7 +34,7 @@ export default function App() {
                 </Link>
               ) : (
                 <Link
-                  to="/user/login"
+                  to="/about"
                   className="text-xl font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
                 >
                  The Watchtower
@@ -42,31 +44,12 @@ export default function App() {
 
               {/* Navigation Links */}
               <div className="hidden min-w-0 items-center space-x-2 md:flex">
-              {isAuthenticated ? (
-                <>
-                  <Link
-                    to="/about"
-                    className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                  >
-                    About
-                  </Link>
-                  {user?.permissions?.includes("read:admin") && (
-                    <Link
-                      to="/auth/admin"
-                      className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                    >
-                      Admin
-                    </Link>
-                  )}
-                </>
-              ) : (
                 <Link
-                  to="/about"
+                  to="/apps"
                   className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
-                  About
+                  Apps
                 </Link>
-              )}
               </div>
             </div>
 
@@ -88,12 +71,20 @@ export default function App() {
                   </button>
                 </div>
               ) : (
-                <Link
-                  to="/user/login"
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  Login
-                </Link>
+                <>
+                  <Link
+                    to="/user/login"
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/user/register"
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Register
+                  </Link>
+                </>
               )}
             </div>
           </div>
@@ -104,16 +95,17 @@ export default function App() {
       <main className="flex-1">
         <Routes>
           <Route path="user" element={<UserLayout />}>
-            {/* <Route path="login" element={<Login />} />
-            <Route path="create" element={<CreateUser />} /> */}
+            <Route path="login" element={<Login />} />
+            <Route path="register" element={<RegisterUser />} />
           </Route>
 
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<About />} />
           </Route>
 
-          <Route path="unauthorized" element={<Unauthorized />} />
+          <Route path="home" element={<Home />} />
           <Route path="about" element={<About />} />
+          <Route path="unauthorized" element={<Unauthorized />} />
           <Route path="*" element={<Navigate to="/about" replace />} />
         </Routes>
       </main>

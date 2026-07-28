@@ -69,15 +69,15 @@ services:
 
   frontend:
     build:
-      context: ./watchtowers-frontend
+      context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "5174:5173"
+      - "5175:5173"
     volumes:
-      - ./watchtowers-frontend:/app
+      - ./frontend:/app
       - /app/node_modules
     env_file:
-      - ./watchtowers-frontend/.env
+      - ./frontend/.env
     restart: always
     environment:
       - CHOKIDAR_USEPOLLING=true
