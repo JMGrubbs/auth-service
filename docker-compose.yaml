@@ -39,7 +39,7 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
-    command: ["sh", "-c", "alembic upgrade head && python -m uvicorn main:app --host 0.0.0.0 --port 8000"]
+    command: ["sh", "-c", "alembic upgrade head && python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload"]
     env_file:
       - ./app/.env
     environment:
@@ -53,6 +53,8 @@ services:
       OAUTH_LOGIN_IP_LIMIT: ${OAUTH_LOGIN_IP_LIMIT:-300}
     ports:
       - "8002:8000"
+    volumes:
+      - ./app:/app
     depends_on:
       postgres:
         condition: service_healthy

@@ -1,9 +1,9 @@
-import uuid
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 
-from core.security import oauth2_scheme, decode_access_token
+from core.security import decode_access_token
+from core.config import settings
 from db.dependencies import get_session
 from repositories.user import get_user_by_id
 from repositories.jwt_token_blacklist import is_token_blacklisted_db, insert_blacklisted_token
@@ -37,10 +37,12 @@ async def check_token_blacklist(
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    request: Request,
     session: AsyncSession = Depends(get_session),
     cache: CacheHelper = Depends(get_cache_helper),
 ) -> User:
+    token: str | None = request.cookies.get(settings.cookie_key) or None
+    assert token is not None, "Token should not be None"
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid authentication credentials",
@@ -71,6 +73,7 @@ async def get_current_user(
 async def get_current_active_user(
     current_user: User = Depends(get_current_user),
 ) -> User:
+    print(f"Current user: {current_user.email}, ID: {current_user.id}, Admin: {current_user.is_admin}", flush=True)
     if not current_user.is_active:
         raise HTTPException(status_code=403, detail="Forbidden")
     return current_user
@@ -85,10 +88,12 @@ async def require_admin(
 
 
 async def blacklist_current_token(
-    token: str = Depends(oauth2_scheme),
+    request: Request,
     session: AsyncSession = Depends(get_session),
     cache: CacheHelper = Depends(get_cache_helper),
 ) -> bool:
+    token: str | None = request.cookies.get(settings.cookie_key) or None
+    assert token is not None, "Token should not be None"
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid authentication credentials",

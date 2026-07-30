@@ -2,6 +2,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useLocation, useNavigate } from "react-router";
 import { SESSION_EXPIRED_EVENT, api, notifySessionExpired } from "../services/api";
 
+import { loginUser, registerUser, logoutUser, getCurrentUser } from "../services/AuthService";
+
 const AuthContext = createContext(null);
 
 const SESSION_EXPIRATION_IGNORED_PATHS = [
@@ -33,19 +35,17 @@ export function AuthProvider({ children }) {
     try {
       setAuthError(null);
 
-      const response = await api.post("/api/v1/auth/login", {
-        email: username,
-        password,
-      });
+      const user_data = await loginUser(username, password);
 
-      if (response.data?.user) {
-        setUser(response.data.user);
+      if (user_data.user) {
+        setUser(user_data.user);
+        navigate("/about")
         return { ok: true };
       }
 
-      const meResponse = await api.get("/api/v1/auth/me");
-      if (meResponse.data?.user) {
-        setUser(meResponse.data.user);
+      const meResponse = await getCurrentUser();
+      if (meResponse.user) {
+        setUser(meResponse.user);
         return { ok: true };
       }
 
@@ -70,7 +70,7 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      await api.post("/api/v1/auth/logout");
+      await logoutUser();
     } catch {
       // ignore logout API errors and still clear local user state
     } finally {
@@ -83,12 +83,9 @@ export function AuthProvider({ children }) {
     try {
       setAuthError(null);
 
-      const response = await api.post("/api/v1/auth/register", {
-        email: username,
-        password,
-      });
+      const response = await registerUser(username, password);
 
-      if (response.data?.ok === true) {
+      if (response.ok === true) {
         const loginResult = await login({ username, password });
 
         if (!loginResult.ok) {

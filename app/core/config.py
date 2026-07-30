@@ -15,7 +15,8 @@ class Settings(BaseSettings):
     oauth_clients_json: str = "[]"
     # Preserve the existing browser API behavior by default. Production deployments
     # should replace this wildcard with an explicit JSON origin allowlist.
-    cors_origins_json: str = '["*"]'
+    cors_origins_json: str
+    cookie_key: str
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

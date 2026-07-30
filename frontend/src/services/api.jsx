@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const AUTH_URL = import.meta.env.VITE_SCRAPPYS_SCRAPYARD_URL;
-export const SESSION_EXPIRED_EVENT = "scrappy:session-expired";
+const AUTH_URL = import.meta.env.VITE_AUTH_SERVICE_BACKEND_URL;
+export const SESSION_EXPIRED_EVENT = "watchtower:session-expired";
 
 export const api = axios.create({
   baseURL: AUTH_URL,

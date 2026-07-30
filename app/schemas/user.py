@@ -39,4 +39,3 @@ class AuthorizedUser(BaseModel):
     id: str
     username: str
     is_admin: bool
-    token: str
