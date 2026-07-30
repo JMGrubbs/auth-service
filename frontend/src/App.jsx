@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import RegisterUser from "./pages/Register";
 import Unauthorized from "./pages/Unauthorized";
 import UserPage from "./pages/UserPage"
+import AppManagment from "./pages/AppManagment";
 
 export default function App() {
   const { user, logout, isAuthenticated, authLoading} = useAuth();
@@ -122,7 +123,7 @@ export default function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route path="/user" element={<UserPage />} />
-            <Route path="/apps" element={<UserPage />} />
+            <Route path="/apps" element={<AppManagment />} />
           </Route>
 
           <Route path="/home" element={<Home />} />
