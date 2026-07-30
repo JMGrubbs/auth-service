@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useLocation, useNavigate } from "react-router";
 import { SESSION_EXPIRED_EVENT, api, notifySessionExpired } from "../services/api";
 
-import { loginUser, registerUser, logoutUser, getCurrentUser } from "../services/AuthService";
+import { loginUser, registerUser, logoutUser } from "../services/AuthService";
 
 const AuthContext = createContext(null);
 

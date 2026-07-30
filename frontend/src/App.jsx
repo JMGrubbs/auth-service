@@ -8,6 +8,7 @@ import About from "./pages/About";
 import Home from "./pages/Home";
 import RegisterUser from "./pages/Register";
 import Unauthorized from "./pages/Unauthorized";
+import UserPage from "./pages/UserPage"
 
 export default function App() {
   const { user, logout, isAuthenticated, authLoading} = useAuth();
@@ -27,12 +28,14 @@ export default function App() {
             <div className="flex min-w-0 items-center gap-8">
               <div className="flex shrink-0 items-center">
                 {isAuthenticated ? (
-                <Link
-                  to="/"
-                  className="text-xl font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
-                >
-                 The Watchtower
-                </Link>
+                <>
+                  <Link
+                    to="/about"
+                    className="text-xl font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
+                    >
+                    The Watchtower
+                  </Link>
+                </>
               ) : (
                 <Link
                   to="/about"
@@ -45,12 +48,29 @@ export default function App() {
 
               {/* Navigation Links */}
               <div className="hidden min-w-0 items-center space-x-2 md:flex">
-                <Link
-                  to="/apps"
-                  className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  Apps
-                </Link>
+                {isAuthenticated ? (
+                  <>
+                    <Link
+                      to="/apps"
+                      className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                      >
+                      Apps
+                    </Link>
+                    <Link
+                      to="/about"
+                      className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                      >
+                      About
+                    </Link>
+                  </>
+              ) : (
+                  <Link
+                    to="/about"
+                    className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    About
+                  </Link>
+                )}
               </div>
             </div>
 
@@ -59,7 +79,7 @@ export default function App() {
               {isAuthenticated ? (
                 <div className="flex items-center space-x-3">
                   <Link
-                    to="/"
+                    to="/user"
                     className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 hover:text-purple-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-purple-400"
                   >
                     Welcome, {user}
@@ -74,13 +94,13 @@ export default function App() {
               ) : (
                 <>
                   <Link
-                    to="/user/login"
+                    to="/auth/login"
                     className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                   >
                     Login
                   </Link>
                   <Link
-                    to="/user/register"
+                    to="/auth/register"
                     className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                   >
                     Register
@@ -95,18 +115,19 @@ export default function App() {
       {/* Main Content */}
       <main className="flex-1">
         <Routes>
-          <Route path="user" element={<UserLayout />}>
+          <Route path="auth" element={<UserLayout />}>
             <Route path="login" element={<Login />} />
             <Route path="register" element={<RegisterUser />} />
           </Route>
 
           <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<About />} />
+            <Route path="/user" element={<UserPage />} />
+            <Route path="/apps" element={<UserPage />} />
           </Route>
 
-          <Route path="home" element={<Home />} />
-          <Route path="about" element={<About />} />
-          <Route path="unauthorized" element={<Unauthorized />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="*" element={<Navigate to="/about" replace />} />
         </Routes>
       </main>
