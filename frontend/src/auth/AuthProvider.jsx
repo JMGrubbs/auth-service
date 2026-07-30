@@ -36,18 +36,19 @@ export function AuthProvider({ children }) {
       setAuthError(null);
 
       const user_data = await loginUser(username, password);
+      console.log("Login response:", user_data);
 
-      if (user_data.user) {
-        setUser(user_data.user);
+      if (user_data.username) {
+        setUser(user_data.username);
         navigate("/about")
         return { ok: true };
       }
 
-      const meResponse = await getCurrentUser();
-      if (meResponse.user) {
-        setUser(meResponse.user);
-        return { ok: true };
-      }
+      // const meResponse = await getCurrentUser();
+      // if (meResponse.user) {
+      //   setUser(meResponse.user);
+      //   return { ok: true };
+      // }
 
       const message = "Login failed";
       setAuthError(message);

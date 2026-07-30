@@ -11,6 +11,7 @@ import Unauthorized from "./pages/Unauthorized";
 
 export default function App() {
   const { user, logout, isAuthenticated, authLoading} = useAuth();
+  console.log("App user:", user, "isAuthenticated:", isAuthenticated, "authLoading:", authLoading);
 
   if (authLoading) {
     return <div>Loading...</div>;
@@ -61,7 +62,7 @@ export default function App() {
                     to="/"
                     className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 hover:text-purple-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-purple-400"
                   >
-                    Welcome, {user?.username}
+                    Welcome, {user}
                   </Link>
                   <button
                     onClick={logout}
