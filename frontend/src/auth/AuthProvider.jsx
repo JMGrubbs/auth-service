@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router";
 import { SESSION_EXPIRED_EVENT, api, notifySessionExpired } from "../services/api";
 
 import { loginUser, registerUser, logoutUser } from "../services/AuthService";
+import { getCurrentUser } from "../services/User";
 
 const AuthContext = createContext(null);
 
@@ -36,8 +37,6 @@ export function AuthProvider({ children }) {
       setAuthError(null);
 
       const user_data = await loginUser(username, password);
-      console.log("Login response:", user_data);
-
       if (user_data.username) {
         setUser(user_data.username);
         navigate("/about")
@@ -163,9 +162,9 @@ export function AuthProvider({ children }) {
       try {
         setAuthError(null);
 
-        const response = await api.get("/api/v1/auth/me");
-        if (response.data?.user) {
-          setUser(response.data.user);
+        const response = await getCurrentUser();
+        if (response.username) {
+          setUser(response.username);
         } else {
           setUser(null);
         }

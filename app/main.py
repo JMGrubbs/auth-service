@@ -39,6 +39,7 @@ app.add_middleware(RequestIDMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "https://dvaults.johnmgrubbs.io",
         "http://100.79.167.31:5175",
     ],
     allow_credentials=True,

@@ -52,7 +52,8 @@ async def login_route(
 async def read_me_route(
     current_user: User = Depends(get_current_active_user),
 ) -> dict[str, Any]:
-    print(f"Current user: {current_user.email}, ID: {current_user.id}, Admin: {current_user.is_admin}", flush=True)
+    if not current_user:
+        return {"message": "User not authenticated"}
     return {
         "id": current_user.id,
         "email": current_user.email,

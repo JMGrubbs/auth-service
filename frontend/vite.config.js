@@ -7,6 +7,6 @@ export default defineConfig({
   server: {
     port: 5173,
     host: "0.0.0.0",
-    allowedHosts: ["localhost", "watchtower-frontend.local", "watchtower.johnmgrubbs.io", "dwatchtower.johnmgrubbs.io"],
+    allowedHosts: ["dvaults.johnmgrubbs.io"],
   }
 });

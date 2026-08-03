@@ -13,7 +13,6 @@ import AppManagment from "./pages/AppManagment";
 
 export default function App() {
   const { user, logout, isAuthenticated, authLoading} = useAuth();
-  console.log("App user:", user, "isAuthenticated:", isAuthenticated, "authLoading:", authLoading);
 
   if (authLoading) {
     return <div>Loading...</div>;
@@ -34,7 +33,7 @@ export default function App() {
                     to="/about"
                     className="text-xl font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
                     >
-                    The Watchtower
+                    Vaults
                   </Link>
                 </>
               ) : (
@@ -42,7 +41,7 @@ export default function App() {
                   to="/about"
                   className="text-xl font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
                 >
-                 The Watchtower
+                 Vaults
                 </Link>
                 )}
               </div>

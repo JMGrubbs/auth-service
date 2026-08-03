@@ -83,6 +83,8 @@ services:
     restart: always
     environment:
       - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - api
     stdin_open: true
     tty: true
 
