@@ -1,4 +1,3 @@
-import json
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -38,10 +37,11 @@ app = FastAPI(
 app.add_middleware(RequestIDMiddleware)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://dvaults.johnmgrubbs.io",
-        "http://100.79.167.31:5175",
-    ],
+    # allow_origins=[
+    #     "https://dvaults.johnmgrubbs.io",
+    #     "http://100.79.167.31:5175",
+    # ],
+    allow_origins=settings.cors_origins_json,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

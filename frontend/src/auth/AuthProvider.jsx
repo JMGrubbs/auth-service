@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { SESSION_EXPIRED_EVENT, api, notifySessionExpired } from "../services/api";
 
 import { loginUser, registerUser, logoutUser } from "../services/AuthService";
@@ -28,9 +28,15 @@ const shouldHandleSessionExpiration = (error) => {
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
+
+  const clientId = searchParams.get("client_id");
+  const redirectUri = searchParams.get("redirect_uri");
+  const state = searchParams.get("state");
+  console.log(clientId, redirectUri, state);
 
   const login = async ({ username, password }) => {
     try {
