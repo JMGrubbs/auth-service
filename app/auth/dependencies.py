@@ -19,6 +19,7 @@ CREDENTIALS_EXCEPTION = HTTPException(
     headers={"WWW-Authenticate": "Bearer"},
 )
 
+
 async def check_token_blacklist(
     token: str,
     session: AsyncSession,
@@ -47,7 +48,6 @@ async def get_current_user(
     cache: CacheHelper = Depends(get_cache_helper),
 ) -> UserSchema | None:
 
-    print("BOOM",request.headers.get("token"))
     header_token: str | None = request.headers.get("token") if request.method == "POST" else None
     cookie_token: str | None = request.cookies.get(settings.cookie_key)
     token = None
@@ -56,15 +56,12 @@ async def get_current_user(
     elif cookie_token:
         token = cookie_token
 
-    print(f"Token being decoded: {token}")
     if not token:
         raise CREDENTIALS_EXCEPTION
 
     token_blacklisted = await check_token_blacklist(token=token, session=session, cache=cache)
-    print(f"Token blacklisted: {token_blacklisted}")
     if token_blacklisted:
         raise CREDENTIALS_EXCEPTION
-    print(f"Token being decoded: {token}")
 
     try:
         payload = decode_access_token(token)
@@ -87,13 +84,6 @@ async def get_current_user(
         is_admin=user.is_admin,
         token=token
     )
-    # user_schema = UserSchema(
-    #     id="daslfkalsdjflajksfd",
-    #     email="test@gmail.com",
-    #     is_active=True,
-    #     is_admin=False,
-    #     token=token
-    # )
     return user_schema
 
 

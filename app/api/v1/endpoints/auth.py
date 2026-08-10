@@ -73,7 +73,6 @@ async def read_me_route(
         raise HTTPException(status_code=403, detail="Forbidden")
 
     if request.method == "POST":
-        print("POST /me, returning AuthorizedUserInternal")
         return AuthorizedUserInternal(
             id=str(current_user.id),
             username=current_user.email,
@@ -81,7 +80,6 @@ async def read_me_route(
             token=current_user.token
         )
     elif request.method == "GET":
-        print("GET /me, returning AuthorizedUser")
         return AuthorizedUser(
             username=current_user.email,
         )
