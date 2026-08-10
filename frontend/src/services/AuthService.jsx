@@ -1,8 +1,8 @@
 import { api } from "./api";
 
-export const loginUser = async (email, password) => {
+export const loginUser = async (email, password, client_id, state, redirect_uri) => {
   try {
-    const response = await api.post("/api/v1/auth/login", { email, password });
+    const response = await api.post("/api/v1/auth/login", { email, password, client_id, state, redirect_uri });
     return response.data;
   } catch (error) {
     console.error("Error logging in user:", error);

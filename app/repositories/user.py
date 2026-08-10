@@ -6,7 +6,7 @@ from models.user import User
 
 
 async def get_user_by_id(session: AsyncSession, user_id: str) -> User | None:
-    result = await session.execute(select(User).where(User.id == user_id))
+    result = await session.execute(select(User).where(User.id == user_id, User.is_active.is_(True)))
     return result.scalar_one_or_none()
 
 

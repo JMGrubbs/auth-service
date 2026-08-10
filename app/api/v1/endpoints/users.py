@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.user import User
 from schemas.user import UserCreate, DeleteUser
-from auth.dependencies import get_current_active_user
+from auth.dependencies import get_current_user
 from repositories.user import (
     deactivate_user,
     delete_user,
@@ -30,7 +30,7 @@ async def create_new_user_route(
 @router.delete("/delete")
 async def delete_user_route(
     subject_user: DeleteUser,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ) -> dict[str, str]:
     if current_user.is_admin:
@@ -45,7 +45,7 @@ async def delete_user_route(
 
 @router.post("/deactivate")
 async def deactivate_user_route(
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ) -> dict[str, str]:
     deactivated_user = await deactivate_user(session, current_user)
@@ -55,7 +55,7 @@ async def deactivate_user_route(
 @router.post("/make-admin")
 async def make_admin_route(
     subject_user: DeleteUser,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ) -> dict[str, str]:
     if current_user.is_admin:

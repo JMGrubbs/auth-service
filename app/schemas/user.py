@@ -1,4 +1,5 @@
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, field_validator, Field
+
 
 class UserCreate(BaseModel):
     email: EmailStr
@@ -23,6 +24,7 @@ class UserCreate(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+    internal: bool = Field(default=False, exclude=True)
 
     @field_validator("email", mode="before")
     def normalize_email(cls, email: EmailStr) -> str:
@@ -36,6 +38,28 @@ class DeleteUser(BaseModel):
         return email.strip().lower()
 
 class AuthorizedUser(BaseModel):
+    username: str
+
+class AuthorizedUserInternal(BaseModel):
     id: str
     username: str
     is_admin: bool
+    token: str | None = Field(default=None)
+
+class AuthMeCheck(BaseModel):
+    token: str
+
+class AuthMeInternalResponse(BaseModel):
+    email: EmailStr
+    is_admin: bool = Field(default=False)
+    token: str | None = Field(default=None)
+
+class AuthMeResponse(BaseModel):
+    email: EmailStr
+
+class UserSchema(BaseModel):
+    id: str
+    email: EmailStr
+    is_active: bool
+    is_admin: bool
+    token: str | None = Field(default=None)

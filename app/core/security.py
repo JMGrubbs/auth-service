@@ -25,10 +25,14 @@ def create_access_token(
         "iat": datetime.now(timezone.utc),
         "jti": str(uuid4()),
     }
-    return str(jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM))
+    print(f"Creating access token with payload: {payload}")
+    token = str(jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM))
+    return token
 
 
 def decode_access_token(token: str) -> dict[str, Any]:
+    print(f"Decoding access token: {token}")
+    print(f"Using SECRET_KEY: {SECRET_KEY} and ALGORITHM: {ALGORITHM}")
     return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
 

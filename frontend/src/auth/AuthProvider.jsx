@@ -33,27 +33,22 @@ export function AuthProvider({ children }) {
   const [authLoading, setAuthLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
 
-  const clientId = searchParams.get("client_id");
-  const redirectUri = searchParams.get("redirect_uri");
-  const state = searchParams.get("state");
-  console.log(clientId, redirectUri, state);
+  let clientId = searchParams.get("client_id") || "vault-web";
+  let redirectUri = searchParams.get("redirect_uri") || "https://dvault.johnmgrubbs.com/auth/callback";
+  let state = searchParams.get("state") || "default_state";
 
   const login = async ({ username, password }) => {
     try {
       setAuthError(null);
 
-      const user_data = await loginUser(username, password);
+      const user_data = await loginUser( username, password, clientId, state, redirectUri);
+      console.log("Login successful:", user_data);
+
       if (user_data.username) {
         setUser(user_data.username);
         navigate("/about")
         return { ok: true };
       }
-
-      // const meResponse = await getCurrentUser();
-      // if (meResponse.user) {
-      //   setUser(meResponse.user);
-      //   return { ok: true };
-      // }
 
       const message = "Login failed";
       setAuthError(message);

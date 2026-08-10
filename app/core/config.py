@@ -17,7 +17,6 @@ class Settings(BaseSettings):
     # should replace this wildcard with an explicit JSON origin allowlist.
     cors_origins_json: list[str]
     cookie_key: str
-    allowed_oauth_redirect_uris: list[str]
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
